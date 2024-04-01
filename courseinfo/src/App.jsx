@@ -26,14 +26,15 @@ const Course = ({course}) => (
   <div>
     <Header course={course} />
     <Content parts={course.parts} />
+    <Total parts={course.parts} />
   </div>
 )
 
 // TODO: modify to calculate total based on arbitrarily many courses
-const Total = (props) => {
+const Total = ({parts}) => {
   return (
     <div>
-      <p>Number of exercises {props.course.parts[0].exercises + props.course.parts[1].exercises + props.course.parts[2].exercises}</p>
+      <p><strong>Number of exercises: {parts.map(part => part.exercises).reduce((a, b) => a + b, 0)}</strong></p>
     </div>
   )
 }
