@@ -1,5 +1,29 @@
 import { useState } from 'react'
 
+const Filter = ({filter, handleFilter}) =>
+  <div>
+    Filter names: <input value={filter} onChange={handleFilter}/>
+  </div>
+
+const PersonForm = ({name, number, handleSubmit, handleNameChange, handleNumberChange}) =>
+  <form onSubmit={handleSubmit}>
+    <div>
+      name: <input value={name} onChange={handleNameChange}/>
+      <br></br>
+      number: <input value={number} onChange={handleNumberChange}/>
+    </div>
+    <div>
+      <button type="submit">add</button>
+    </div>
+  </form>
+
+const Persons = ({persons}) => 
+  <div>
+    {persons.map(p => <div key={p.name}>{p.name} {p.number}</div>)}
+  </div>
+  
+
+
 const App = () => {
   const [persons, setPersons] = useState([
     { name: 'Arto Hellas', number: '040-123456', id: 1 },
@@ -17,14 +41,15 @@ const App = () => {
     if (persons.map(p => p.name).includes(newName)) {
       return alert(`${newName} is already added to phonebook`)
     }
-    const newPerson = { name: newName, number: newNumber }
-    setPersons(persons.concat(newPerson))
+    const newPersons = persons.concat({ name: newName, number: newNumber })
+    setPersons(newPersons)
     setNewName("")
     setNewNumber("")
+    setShownPersons(newPersons.filter(p => p.name.toLowerCase().includes(`${filter}`)))
   }
 
   const handleFilter = (event) => {
-    const f = event.target.value
+    const f = event.target.value // This is added in order to filter properly (setFilter is asynchronous)
     setFilter(f)
     setShownPersons(persons.filter(p => p.name.toLowerCase().includes(`${f}`)))
   }
@@ -40,20 +65,17 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      Filter names: <input value={filter} onChange={handleFilter}/>
+      <Filter filter={filter} handleFilter={handleFilter}/>    
       <h2>Add new:</h2>
-      <form onSubmit={handleSubmit}>
-        <div>
-          name: <input value={newName} onChange={handleNameChange}/>
-          <br></br>
-          number: <input value={newNumber} onChange={handleNumberChange}/>
-        </div>
-        <div>
-          <button type="submit">add</button>
-        </div>
-      </form>
+      <PersonForm
+        name={newName}
+        number={newNumber}
+        handleSubmit={handleSubmit}
+        handleNameChange={handleNameChange}
+        handleNumberChange={handleNumberChange}
+      />
       <h2>Numbers</h2>
-      {shownPersons.map(p => <div key={p.name}>{p.name} {p.number}</div>)}
+      <Persons persons={shownPersons} />     
     </div>
   )
 }
