@@ -49,19 +49,35 @@ const App = () => {
 
   const handleSubmit = (event) => {
     event.preventDefault()
-    if (persons.map(p => p.name).includes(newName)) {
-      return alert(`${newName} is already added to phonebook`)
+    const existingPerson = persons.find(p => p.name === newName)
+    if (existingPerson) {
+      if (confirm(`${newName} is already added to phonebook, replace the old number with a new one?`)) {
+        const updatedPerson = {...existingPerson, number: newNumber}
+        personService
+          .update(updatedPerson.id, updatedPerson)
+          .then(res => {
+            setPersons(persons.map(p => p.id !== updatedPerson.id ? p : updatedPerson))
+            setNewName("")
+            setNewNumber("")
+            setShownPersons(
+              persons
+                .map(p => p.id !== updatedPerson.id ? p : updatedPerson)
+                .filter(p => p.name.toLowerCase().includes(`${filter}`))
+            )
+          })
+      }
     }
-
-    const newPerson = { name: newName, number: newNumber }
-    personService
-      .create(newPerson)
-      .then(res => {
-        setPersons(persons.concat(res))
-        setNewName("")
-        setNewNumber("")
-        setShownPersons(persons.concat(res).filter(p => p.name.toLowerCase().includes(`${filter}`)))
-      })
+    else {
+      const newPerson = { name: newName, number: newNumber }
+      personService
+        .create(newPerson)
+        .then(res => {
+          setPersons(persons.concat(res))
+          setNewName("")
+          setNewNumber("")
+          setShownPersons(persons.concat(res).filter(p => p.name.toLowerCase().includes(`${filter}`)))
+        })
+    }
 
   }
 
