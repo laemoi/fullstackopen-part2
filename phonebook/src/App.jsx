@@ -18,9 +18,13 @@ const PersonForm = ({name, number, handleSubmit, handleNameChange, handleNumberC
     </div>
   </form>
 
-const Persons = ({persons}) => 
+const Persons = ({persons, handleClick}) => 
   <div>
-    {persons.map(p => <div key={p.name}>{p.name} {p.number}</div>)}
+    {persons.map(p =>
+      <div key={p.name}>
+        {p.name} {p.number} <button id={p.id} value={p.name} onClick={handleClick}>delete</button>
+      </div>
+    )}
   </div>
 
 
@@ -50,16 +54,26 @@ const App = () => {
     }
 
     const newPerson = { name: newName, number: newNumber }
-    const newPersons = persons.concat({ name: newName, number: newNumber })
     personService
       .create(newPerson)
       .then(res => {
-        setPersons(newPersons)
+        setPersons(persons.concat(res))
         setNewName("")
         setNewNumber("")
-        setShownPersons(newPersons.filter(p => p.name.toLowerCase().includes(`${filter}`)))
+        setShownPersons(persons.concat(res).filter(p => p.name.toLowerCase().includes(`${filter}`)))
       })
 
+  }
+
+  const handleRemove = (event) => {
+    const id = event.target.id
+    const name = event.target.value
+    if (window.confirm(`Delete ${name}?`)) {
+      personService.remove(id)
+      const newPersons = persons.filter(p => p.id !== id)
+      setPersons(newPersons)
+      setShownPersons(newPersons.filter(p => p.name.toLowerCase().includes(`${filter}`)))
+    }
   }
 
   const handleFilter = (event) => {
@@ -89,7 +103,7 @@ const App = () => {
         handleNumberChange={handleNumberChange}
       />
       <h2>Numbers</h2>
-      <Persons persons={shownPersons} />     
+      <Persons persons={shownPersons} handleClick={handleRemove} />     
     </div>
   )
 }
