@@ -1,13 +1,13 @@
 import { useState, useEffect } from 'react'
 import personService from "./services/persons"
 
-const Notification = ({ message }) => {
+const Notification = ({ message, type }) => {
   if (message === null) {
     return null
   }
 
   return (
-    <div className='error'>
+    <div className={type}>
       {message}
     </div>
   )
@@ -47,6 +47,7 @@ const App = () => {
   const [filter, setFilter] = useState("")
   const [shownPersons, setShownPersons] = useState([])
   const [notification, setNotification] = useState(null)
+  const [notificationType, setNotificationType] = useState("success")
 
   useEffect( 
     () => {
@@ -79,6 +80,14 @@ const App = () => {
             )
             setNotification(`Updated ${updatedPerson.name}`)
             setTimeout(() => {
+              setNotification(null)
+            }, 5000)
+          })
+          .catch(error => {
+            setNotificationType("error")
+            setNotification(`Information of ${updatedPerson.name} has already been removed from server`)
+            setTimeout(() => {
+              setNotificationType("success")
               setNotification(null)
             }, 5000)
           })
@@ -130,7 +139,7 @@ const App = () => {
   return (
     <div>
       <h2>Phonebook</h2>
-      <Notification message={notification} />
+      <Notification message={notification} type={notificationType} />
       <Filter filter={filter} handleFilter={handleFilter} />    
       <h2>Add new:</h2>
       <PersonForm
