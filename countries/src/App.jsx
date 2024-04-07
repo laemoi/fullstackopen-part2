@@ -1,21 +1,58 @@
-import { useState, useEffect } from 'react'
+import { useState, useEffect } from "react"
 import axios from "axios"
 
 const Country = ({n, capital, area, languages, flag}) => {
-  return (
-    <div>
-      <h1>{n}</h1>
-      <div>capital: {capital}</div>
-      <div>area: {area}</div>
 
-      <h3>Languages:</h3>
-      <ul>
-        {Object.values(languages).map((lang, index) => <li key={index}>{lang}</li>)}
-      </ul>
+  const [weather, setWeather] = useState(null)
+
+  const apiKey = import.meta.env.VITE_WEATHER_KEY
+
+  useEffect(() => {
+    axios
+      .get(`https://api.openweathermap.org/data/2.5/weather?q=${capital}&appid=${apiKey}&units=metric`)
+      .then(res => {
+        setWeather(res.data)
+      })
+  },
+  [])
+  
+  if (weather) {
+    const
+      {
+        main: {
+          temp: temp,
+        },
+        wind: {
+          speed: wind
+        },
+        weather: [
+          {
+            icon: icon
+          }
+        ]
+      } = weather
       
-      <img src={flag} alt={`Flag of ${n}`}/>
-    </div>
-  )
+    return (
+      <div>
+        <h1>{n}</h1>
+        <div>capital: {capital}</div>
+        <div>area: {area}</div>
+
+        <h3>Languages:</h3>
+        <ul>
+          {Object.values(languages).map((lang, index) => <li key={index}>{lang}</li>)}
+        </ul>
+        
+        <img src={flag} alt={`Flag of ${n}`}/>
+
+        <h3>Weather in {capital}</h3>
+        <div>temperature: {temp} Celcius</div>
+        <img src={`https://openweathermap.org/img/wn/${icon}@2x.png`} alt="Weather icon"/>
+        <div>wind: {wind} m/s</div>
+      </div>
+    )
+  }
+  
 }
 
 const Display = ({matches, handleClick}) => {
@@ -44,7 +81,7 @@ const Display = ({matches, handleClick}) => {
     )
   }
   else {
-    <p>No countries matched the search.</p>
+    return <div>No countries matched the search.</div>
   }
 }
 
