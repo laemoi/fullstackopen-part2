@@ -18,13 +18,17 @@ const Country = ({n, capital, area, languages, flag}) => {
   )
 }
 
-const Display = ({matches}) => {
+const Display = ({matches, handleClick}) => {
   if (matches.length > 10) {
     return <div>Too many matches, specify another filter</div>
   }
   else if (matches.length > 1) {
     return matches.map(c => {
-      return <div key={c.name.official}>{c.name.common}</div>
+      return (
+        <div key={c.name.official}>
+          {c.name.common} <button id={c.name.official} onClick={handleClick}>show</button>
+        </div>
+      )
     })
   }
   else if (matches.length > 0) {
@@ -66,10 +70,15 @@ const App = () => {
     setMatchingCountries(countries.filter(country => country.name.common.toLowerCase().includes(s)))
   }
 
+  const handleShow = (event) => {
+    const id = event.target.id
+    setMatchingCountries(matchingCountries.filter(c => c.name.official === id))
+  }
+
   return (
     <div>
       Find countries: <input type="text" value={search} onChange={handleSearch}/>
-      <Display matches={matchingCountries} />
+      <Display matches={matchingCountries} handleClick={handleShow} />
     </div>
   )
 }
